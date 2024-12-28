@@ -1,10 +1,18 @@
 package app
 
 import (
-	"fmt"
+	"context"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/anton-ag/javacode/internal/config"
+	"github.com/anton-ag/javacode/internal/http"
+	"github.com/anton-ag/javacode/internal/repo"
+	"github.com/anton-ag/javacode/internal/server"
+	"github.com/anton-ag/javacode/internal/service"
 	"github.com/anton-ag/javacode/pkg/postgres"
 )
 
@@ -21,8 +29,28 @@ func Run(configPath string) {
 		return
 	}
 
-	// TODO: launch application
-	fmt.Printf("%+v\n", cfg)
-}
+	repo := repo.InitRepo(db)
+	service := service.InitService(repo)
+	handler := http.NewHandler(service)
+	server := server.NewServer(cfg, handler.Init())
 
-// TODO: fix int/int64 mismatches
+	go func() {
+		if err := server.Run(); err != nil {
+			log.Fatalf("Ошибка сервера: %s\n", err.Error())
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+
+	<-quit
+
+	ctx, shutdown := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdown()
+
+	if err := server.Stop(ctx); err != nil {
+		log.Fatalf("Ошибка остановки сервера: %s\n", err.Error())
+	}
+
+	return
+}
