@@ -24,3 +24,5 @@ func Run(configPath string) {
 	// TODO: launch application
 	fmt.Printf("%+v\n", cfg)
 }
+
+// TODO: fix int/int64 mismatches
