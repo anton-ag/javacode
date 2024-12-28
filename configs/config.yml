@@ -1,0 +1,9 @@
+postgres:
+  user: user
+  password: secret
+  url: postgres
+  port: 5432
+  name: wallet
+
+http:
+  port: 7540
