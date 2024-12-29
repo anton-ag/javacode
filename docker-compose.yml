@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:17.2
+    container_name: postgres
+    ports:
+      - 5432:5432
+    networks:
+      - javacode-network
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: user
+      POSTGRES_DB: wallet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRESS_USER} -d ${POSTGRESS_DB}"]
+      interval: 10s
+      retries: 6
+      start_period: 10s
+      timeout: 10s
+  
+  javacode:
+    image: javacode:1
+    build: .
+    container_name: javacode
+    ports:
+      - 7540:7540
+    networks:
+      - javacode-network
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+    
+networks:
+  javacode-network:
+    driver: bridge
+
+volumes:
+  pg_data:

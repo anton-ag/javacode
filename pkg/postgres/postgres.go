@@ -18,4 +18,15 @@ func Connect(cfg *config.Config) (*sql.DB, error) {
 	return db, nil
 }
 
-// TODO: Initialize empty database
+func InitTable(db *sql.DB) error {
+	query := `CREATE TABLE IF NOT EXISTS wallet (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  total integer DEFAULT 0
+	);`
+	_, err := db.Exec(query)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
