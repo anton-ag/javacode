@@ -28,6 +28,10 @@ func Run(configPath string) {
 		log.Fatal(err)
 		return
 	}
+	if err = postgres.InitTable(db); err != nil {
+		log.Fatal(err)
+		return
+	}
 
 	repo := repo.InitRepo(db)
 	service := service.InitService(repo)

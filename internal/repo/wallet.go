@@ -16,7 +16,7 @@ func NewWalletRepo(db *sql.DB) *WalletRepo {
 }
 
 func (r *WalletRepo) Deposit(id string, amount int) error {
-	query := "UPDATE total SET total + ? WHERE id = ?"
+	query := "UPDATE wallet SET total = total + $1 WHERE id = '$2'"
 
 	_, err := r.db.Exec(query, amount, id)
 	if err != nil {
@@ -27,7 +27,7 @@ func (r *WalletRepo) Deposit(id string, amount int) error {
 }
 
 func (r *WalletRepo) Withdraw(id string, amount int) error {
-	query := "UPDATE total SET total - ? WHERE id = ?"
+	query := "UPDATE wallet SET total = total - $1 WHERE id = '$2'"
 	_, err := r.db.Exec(query, amount, id)
 	if err != nil {
 		return fmt.Errorf("ошибка снятия средств: %w", err)
@@ -38,7 +38,7 @@ func (r *WalletRepo) Withdraw(id string, amount int) error {
 
 func (r *WalletRepo) Check(id string) (int, error) {
 	var total int
-	query := "SELECT total WHERE id = ?"
+	query := "SELECT total FROM wallet WHERE id = '$1'"
 	row := r.db.QueryRow(query, id)
 	if err := row.Scan(&total); err != nil {
 		return 0, err
