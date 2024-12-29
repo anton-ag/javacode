@@ -17,6 +17,9 @@ func InitWalletService(walletRepo repo.Wallet) *WalletService {
 }
 
 func (s *WalletService) Update(id string, amount int, operation string) error {
+	if amount < 1 {
+		return fmt.Errorf("указана неверная сумма транзакции")
+	}
 	switch operation {
 	case "DEPOSIT":
 		return s.walletRepo.Deposit(id, amount)
