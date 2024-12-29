@@ -1,8 +1,10 @@
 package http
 
 import (
+	"database/sql"
 	"net/http"
 
+	"github.com/anton-ag/javacode/internal/domain"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,7 +22,10 @@ func (h *Handler) initWalletRoutes(api *gin.RouterGroup) {
 	wallet := api.Group("/wallet")
 	{
 		wallet.POST("/", h.Update)
-		wallet.GET("/:id", h.Check)
+	}
+	wallets := api.Group("/wallets")
+	{
+		wallets.GET("/:id", h.Check)
 	}
 }
 
@@ -32,6 +37,10 @@ func (h *Handler) Update(c *gin.Context) {
 	}
 
 	if err := h.service.Wallet.Update(p.ID, p.Amount, p.Operation); err != nil {
+		if err == domain.ErrWalletNotFound {
+			newResponse(c, http.StatusNotFound, err.Error())
+			return
+		}
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -48,6 +57,10 @@ func (h *Handler) Check(c *gin.Context) {
 
 	amount, err := h.service.Wallet.Check(id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			newResponse(c, http.StatusNotFound, "пользователь с данным uuid не найден")
+			return
+		}
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}

@@ -28,6 +28,7 @@ func Run(configPath string) {
 		log.Fatal(err)
 		return
 	}
+	defer db.Close()
 	if err = postgres.InitTable(db); err != nil {
 		log.Fatal(err)
 		return

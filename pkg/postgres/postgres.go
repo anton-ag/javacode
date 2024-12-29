@@ -19,7 +19,6 @@ func Connect(cfg *config.Config) (*sql.DB, error) {
 }
 
 func InitTable(db *sql.DB) error {
-	// TODO: move to file
 	query := `CREATE TABLE IF NOT EXISTS wallet (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   total integer DEFAULT 0
