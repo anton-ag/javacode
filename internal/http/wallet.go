@@ -41,6 +41,10 @@ func (h *Handler) Update(c *gin.Context) {
 			newResponse(c, http.StatusNotFound, err.Error())
 			return
 		}
+		if err == domain.ErrWrongOperation {
+			newResponse(c, http.StatusBadRequest, err.Error())
+			return
+		}
 		newResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -58,7 +62,7 @@ func (h *Handler) Check(c *gin.Context) {
 	amount, err := h.service.Wallet.Check(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			newResponse(c, http.StatusNotFound, "пользователь с данным uuid не найден")
+			newResponse(c, http.StatusNotFound, "кошелёк с данным uuid не найден")
 			return
 		}
 		newResponse(c, http.StatusInternalServerError, err.Error())

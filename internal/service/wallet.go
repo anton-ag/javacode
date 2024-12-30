@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 
+	"github.com/anton-ag/javacode/internal/domain"
 	"github.com/anton-ag/javacode/internal/repo"
 )
 
@@ -17,7 +18,7 @@ func InitWalletService(walletRepo repo.Wallet) *WalletService {
 }
 
 func (s *WalletService) Update(id string, amount int, operation string) error {
-	if amount < 1 {
+	if amount < 0 {
 		return fmt.Errorf("указана неверная сумма транзакции")
 	}
 	switch operation {
@@ -26,7 +27,7 @@ func (s *WalletService) Update(id string, amount int, operation string) error {
 	case "WITHDRAW":
 		return s.walletRepo.Withdraw(id, amount)
 	default:
-		return fmt.Errorf("неверный тип операции")
+		return domain.ErrWrongOperation
 	}
 }
 
